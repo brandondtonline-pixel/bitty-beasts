@@ -1,38 +1,36 @@
-"""Keep the Instagram token alive. Runs on Dominic's PC, never in the repo.
+"""Save the Instagram posting token. Runs on Dominic's PC, never in the repo.
 
-    python ig_token.py --new   # paste a fresh token from the Meta dashboard (first time, or if it lapsed)
-    python ig_token.py         # refresh it (tokens die after 60 days unless refreshed)
+    python ig_token.py   # paste the token from the Meta dashboard into the pop-up box
 
-Either way the token is saved outside the repo at ~/.bitty-beasts/ig_token and copied
-into this repo's IG_TOKEN secret with the GitHub CLI.
+The token is a system-user token from the Bitty Beasts Poster app and never expires, so this
+is only needed again if the token is revoked or regenerated. It is saved outside the repo at
+~/.bitty-beasts/ig_token and copied into this repo's IG_TOKEN secret with the GitHub CLI.
 """
-import getpass
-import json
 import subprocess
 import sys
-import urllib.parse
-import urllib.request
+import tkinter as tk
 from pathlib import Path
+from tkinter import messagebox, simpledialog
 
 TOKEN_FILE = Path.home() / '.bitty-beasts' / 'ig_token'
 GH = r'C:\Program Files\GitHub CLI\gh.exe'
 
 
 def main():
-    if '--new' in sys.argv:
-        token = getpass.getpass('Paste the Instagram token (it will not show): ').strip()
-    else:
-        old = TOKEN_FILE.read_text().strip()
-        q = urllib.parse.urlencode({'grant_type': 'ig_refresh_token', 'access_token': old})
-        with urllib.request.urlopen(f'https://graph.instagram.com/refresh_access_token?{q}', timeout=60) as r:
-            reply = json.load(r)
-        token = reply['access_token']
-        print(f'Refreshed, good for {reply["expires_in"] // 86400} more days.')
+    # A pop-up box, because hidden console prompts don't take pastes in every Windows terminal.
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes('-topmost', True)
+    token = (simpledialog.askstring('Bitty Beasts', 'Paste the Instagram token (Ctrl+V), then click OK:',
+                                    show='•', parent=root) or '').strip()
+    if not token:
+        sys.exit('No token entered, nothing saved.')
     TOKEN_FILE.parent.mkdir(exist_ok=True)
     TOKEN_FILE.write_text(token)
     subprocess.run([GH, 'secret', 'set', 'IG_TOKEN'], input=token, text=True, check=True,
                    cwd=Path(__file__).parent)
-    print('Saved, and the IG_TOKEN secret on GitHub is updated.')
+    messagebox.showinfo('Bitty Beasts', 'Saved! The token is stored on this PC and in GitHub.', parent=root)
+    root.destroy()
 
 
 if __name__ == '__main__':
