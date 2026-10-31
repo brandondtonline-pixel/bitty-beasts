@@ -1,0 +1,32 @@
+name: Post reel
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 00:00 UTC = 6pm Belize time
+  workflow_dispatch:
+    inputs:
+      count:
+        description: How many reels to post now
+        default: '1'
+
+permissions:
+  contents: write
+
+concurrency: post
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Post to Instagram
+        run: python post.py "$COUNT"
+        env:
+          COUNT: ${{ inputs.count || '1' }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+      - name: Record what was posted
+        if: always()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am 'Mark posted reels' && git push || echo 'Nothing new to record'
