@@ -2,7 +2,7 @@ name: Post reel
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # 00:00 UTC = 6pm Belize time
+    - cron: '47 23 * * *'   # 23:47 UTC = 5:47pm Belize time (off the hour, when GitHub is less busy)
   workflow_dispatch:
     inputs:
       count:
