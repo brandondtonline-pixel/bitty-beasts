@@ -18,6 +18,12 @@
     "media_id": null
   },
   {
+    "name": "bee-ball",
+    "approved": true,
+    "posted": null,
+    "media_id": null
+  },
+  {
     "name": "mary-river-turtle",
     "approved": false,
     "posted": null,
@@ -31,12 +37,6 @@
   },
   {
     "name": "reindeer-eyes",
-    "approved": false,
-    "posted": null,
-    "media_id": null
-  },
-  {
-    "name": "bee-ball",
     "approved": false,
     "posted": null,
     "media_id": null
