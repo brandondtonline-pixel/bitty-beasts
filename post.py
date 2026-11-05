@@ -71,9 +71,9 @@ def main():
         return
     count = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     queue = json.loads(QUEUE.read_text(encoding='utf-8'))
-    if os.environ.get('GITHUB_EVENT_NAME') == 'schedule':
-        # GitHub can start the daily run hours late; if a reel already went up in the last
-        # 20 hours (say, posted by hand), skip so two don't land on the same evening.
+    if os.environ.get('GITHUB_EVENT_NAME') in ('schedule', 'push'):
+        # The evening trigger and GitHub's late backup run both land here; if a reel already went
+        # up in the last 20 hours (or was posted by hand), skip so two don't land on the same evening.
         last = max((datetime.fromisoformat(r['posted']) for r in queue if r['posted']), default=None)
         if last and (datetime.now(timezone.utc) - last).total_seconds() < 20 * 3600:
             print(f'Skipped: a reel already went up at {last:%Y-%m-%d %H:%M} UTC.')

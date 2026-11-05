@@ -2,7 +2,9 @@ name: Post reel
 
 on:
   schedule:
-    - cron: '47 23 * * *'   # 23:47 UTC = 5:47pm Belize time (off the hour, when GitHub is less busy)
+    - cron: '47 23 * * *'   # backup only: GitHub often starts this hours late (23:47 UTC = 5:47pm Belize)
+  push:
+    branches: ['claude/post-trigger']   # the on-time start: a Claude routine pushes here each evening
   workflow_dispatch:
     inputs:
       count:
@@ -19,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: main   # the trigger branch only starts the run; the queue always lives on main
       - name: Post to Instagram
         run: python post.py "$COUNT"
         env:
